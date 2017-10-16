@@ -23,6 +23,7 @@
   },
   "homepage": "https://github.com/DeylRaytop/url-shortener-ms#readme",
   "dependencies": {
-    "express": "^4.16.2"
+    "express": "^4.16.2",
+    "mongojs": "^2.4.1"
   }
 }
