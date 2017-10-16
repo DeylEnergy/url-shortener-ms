@@ -1,0 +1,18 @@
+<html>
+  <head>
+    <title>Url Shortener</title>
+  </head>
+  <body>
+    <h1>Url Shortener Microservice</h1>
+    <p>The microservice is able to make the link shorter. It returns JSON data.</p>
+    <h4>How does a response look?</h4>
+    <p>https://little-url.herokuapp.com/new/https://www.google.com</p>
+    <p>https://little-url.herokuapp.com/new/https://foo.com</p>
+    <h4>JSON output will be:</h4>
+    <div>
+      { "original_url":"https://foo.com:80", "short_url":"https://little-url.herokuapp.com/8170" }
+    </div>
+    <h4>Created link redirect to original source</h4>
+    <p>https://little-url.herokuapp.com/8170</p>
+  </body>
+</html>
