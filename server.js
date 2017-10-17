@@ -7,49 +7,70 @@ const serviceUrl = 'https://myshortapp.com/';
 app.get('/', (req, res) => {
   res.sendFile(__dirname + '/views/index.html');
 });
-app.get('/:short_url_id', (req, res) => {
-  console.log(req.params);
-  db.urls_collection.find({_id: parseInt(req.params.short_url_id)})
-    .toArray((err, data) => {
-      if (err) throw err;
-      res.redirect(data[0].original_url);
-  });
+
+app.get('/new', (req,res) => {
+  res.end('err');;
 });
-app.get('/new/:protocol//:original_url', (req, res) => {
-  let incrementNewUrl = collectionName => {
-    return new Promise((resolve, reject) => {
-      returnedId = db.counters.findAndModify({
-        query: {_id: collectionName},
+
+app.get('/new/:protocol://*', (req, res) => {
+  if ((req.params.protocol == 'http') || (req.params.protocol == 'https')){
+    new Promise((resolve, reject) => {
+      db.counters.findAndModify({
+        query: {_id: 'url_id'},
         update: {$inc: {sequence_value: 1}},
         new: true
       }, (err, data) => {
         if (err) throw err;
-        resolve(data.sequence_value);
+        resolve(data.sequence_value.toString());
       });
+    }).then((newId) => {
+      newId = parseInt(newId);
+      db.urls_collection.insert({
+        _id: newId,
+        original_url: req.params.protocol + '://' + req.params['0']
+      });
+      new Promise((resolve, reject) => {
+        db.urls_collection.find({_id: newId}).toArray((err, data) => {
+          resolve(data);
+        });
+      }).then(urlObj => {
+        res.json(urlObj);
+      }).catch(err => console.log(err));
+    }).catch(e => {
+      console.log(e);
     });
-  };
-  incrementNewUrl('url_id').then((newId) => {
-    db.urls_collection.insert({
-      _id: newId,
-      original_url: req.params.protocol + '//' + req.params.original_url
+  } else {
+    res.json({
+      error: true
     });
+  }
+});
+app.get('/new/*', (req,res) => {
+  res.end('err');;
+});
+app.get('/:get_url_id', (req, res) => {
+  if (Number(req.params.get_url_id)){
     new Promise((resolve, reject) => {
-      db.urls_collection.find({_id: newId}).toArray((err, data) => {
-        if (err) throw err;
-        resolve(data[0]);
+      db.urls_collection.find({_id: parseInt(req.params.get_url_id)})
+        .toArray((err, data) => {
+          if (err) throw err;
+          if (data.length > 0) {
+            resolve(data[0].original_url);
+        } else {
+          reject();
+        }
       });
-    }).then((urlObj) => {
+    }).then((data) => {
+      res.redirect(data);
+    }).catch(() => {
       res.json({
-        original_url: urlObj.original_url,
-        short_url: `${serviceUrl}${urlObj._id}`
+        error: 'This url does not exist'
       });
     });
-  }).catch((err) => {
-    console.log(err);
+} else {
+  res.json({
+    error: 'This url does not exist'
   });
+}
 });
-app.get('/new/*', (req, res) => {
-  console.log('nothing');
-});
-
 app.listen(3000);
