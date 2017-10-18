@@ -2,14 +2,13 @@ const mongo = require('mongojs');
 const db = mongo('urlsdb', ['urls_collection']);
 const express = require('express');
 const app = express();
-const serviceUrl = 'https://myshortapp.com/';
 
 app.get('/', (req, res) => {
   res.sendFile(__dirname + '/views/index.html');
 });
 
 app.get('/new', (req,res) => {
-  res.end('err');;
+  res.end('err');
 });
 
 app.get('/new/:protocol://*', (req, res) => {
